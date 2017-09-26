@@ -1,0 +1,279 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pinup_price_purchase
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-08-25 17:15+0000\n"
+"PO-Revision-Date: 2017-08-25 11:22-0600\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"Language: en\n"
+"X-Generator: Poedit 1.8.11\n"
+
+#. module: pinup_price_purchase
+#: model:ir.actions.act_window,help:pinup_price_purchase.pinup_price_purchase_list_action
+msgid ""
+"<p class=\"oe_view_nocontent_create\">\n"
+"                    set price purchase\n"
+"                </p>\n"
+"            "
+msgstr ""
+"<p class=\"oe_view_nocontent_create\">\n"
+"                    set price purchase\n"
+"                </p>\n"
+"            "
+
+#. module: pinup_price_purchase
+#: view:pinup.price.purchase:pinup_price_purchase.pinup_price_purchase_form_view
+#: selection:pinup.price.purchase,state:0
+msgid "Confirmed"
+msgstr "Confirmado"
+
+#. module: pinup_price_purchase
+#: view:pinup.price.purchase:pinup_price_purchase.pinup_price_purchase_search_view
+msgid "Contract"
+msgstr "Contrato"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,create_uid:0
+msgid "Created by"
+msgstr "Created by"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,create_date:0
+msgid "Created on"
+msgstr "Created on"
+
+#. module: pinup_price_purchase
+#: help:pinup.price.purchase,message_last_post:0
+msgid "Date of the last message posted on the record."
+msgstr "Date of the last message posted on the record."
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,display_name:0
+msgid "Display Name"
+msgstr "Display Name"
+
+#. module: pinup_price_purchase
+#: view:pinup.price.purchase:pinup_price_purchase.pinup_price_purchase_form_view
+#: selection:pinup.price.purchase,state:0
+msgid "Draft"
+msgstr "Borrador"
+
+#. module: pinup_price_purchase
+#: model:ir.model,name:pinup_price_purchase.model_pinup_price_purchase
+msgid "Email Thread"
+msgstr "Hilo de mensajes"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,message_follower_ids:0
+msgid "Followers"
+msgstr "Seguidores"
+
+#. module: pinup_price_purchase
+#: view:pinup.price.purchase:pinup_price_purchase.pinup_price_purchase_search_view
+msgid "Group By"
+msgstr "Agrupar for"
+
+#. module: pinup_price_purchase
+#: help:pinup.price.purchase,message_summary:0
+msgid "Holds the Chatter summary (number of messages, ...). This summary is directly in html format in order to be inserted in kanban views."
+msgstr "Holds the Chatter summary (number of messages, ...). This summary is directly in html format in order to be inserted in kanban views."
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,id:0
+msgid "ID"
+msgstr "ID"
+
+#. module: pinup_price_purchase
+#: help:pinup.price.purchase,message_unread:0
+msgid "If checked new messages require your attention."
+msgstr "If checked new messages require your attention."
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,message_is_follower:0
+msgid "Is a Follower"
+msgstr "Is a Follower"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,message_last_post:0
+msgid "Last Message Date"
+msgstr "Last Message Date"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,__last_update:0
+msgid "Last Modified on"
+msgstr "Last Modified on"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,write_uid:0
+msgid "Last Updated by"
+msgstr "Last Updated by"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,write_date:0
+msgid "Last Updated on"
+msgstr "Last Updated on"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,message_ids:0
+msgid "Messages"
+msgstr "Messages"
+
+#. module: pinup_price_purchase
+#: help:pinup.price.purchase,message_ids:0
+msgid "Messages and communication history"
+msgstr "Messages and communication history"
+
+#. module: pinup_price_purchase
+#: view:pinup.price.purchase:pinup_price_purchase.pinup_price_purchase_search_view
+msgid "Partner"
+msgstr "Proveedor"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,pinup_tons:0
+msgid "Pinup tons"
+msgstr "Toneladas a Preciar"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,price_date:0
+msgid "Price date"
+msgstr "Fecha de Solicitud"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,price_mx:0
+msgid "Price mx"
+msgstr "Precio por Tonelada(MX)"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,price_usd:0
+msgid "Price usd"
+msgstr "Precio por Tonelada(USD)"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,price_usd_mn:0
+msgid "Price usd mn"
+msgstr "Precio (USD)"
+
+#. module: pinup_price_purchase
+#: model:ir.model,name:pinup_price_purchase.model_purchase_order
+msgid "Purchase Order"
+msgstr "Pedido de compra"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,purchase_order_id:0
+msgid "Purchase order id"
+msgstr "Contrato"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,request_date:0
+msgid "Request date"
+msgstr "Fecha de Solicitud"
+
+#. module: pinup_price_purchase
+#: view:pinup.price.purchase:pinup_price_purchase.pinup_price_purchase_form_view
+#: view:purchase.order:pinup_price_purchase.purchase_order_pinup_contract
+msgid "Set Price"
+msgstr "Preciar"
+
+#. module: pinup_price_purchase
+#: model:ir.actions.act_window,name:pinup_price_purchase.pinup_price_purchase_list_action
+msgid "Set Price Contract"
+msgstr "Preciar Contratos"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,name:0
+msgid "Set Price Reference"
+msgstr "Nombre"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,state:0
+msgid "State"
+msgstr "State"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,message_summary:0
+msgid "Summary"
+msgstr "Summary"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,partner_id:0
+msgid "Supplier"
+msgstr "Proveedor"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,tc:0
+msgid "Tc"
+msgstr "Tipo de Cambio"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,tc_date:0
+msgid "Tc date"
+msgstr "Fecha Tips de Cambio"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,tc_mn:0
+msgid "Tc mn"
+msgstr "Tipo de Cambio"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,tons_contract:0
+msgid "Tons contract"
+msgstr "Toneladas Contratadas"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,tons_invoiced:0
+msgid "Tons invoiced"
+msgstr "Toneladas Facturadas"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,tons_priced:0
+msgid "Tons priced"
+msgstr "Toneladas Preciadas"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,tons_reception:0
+msgid "Tons reception"
+msgstr "Toneladas Recibidas"
+
+#. module: pinup_price_purchase
+#: help:pinup.price.purchase,name:0
+msgid "Unique number of the set prices"
+msgstr "Unique number of the set prices"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,message_unread:0
+msgid "Unread Messages"
+msgstr "Unread Messages"
+
+#. module: pinup_price_purchase
+#: field:pinup.price.purchase,website_message_ids:0
+msgid "Website Messages"
+msgstr "Website Messages"
+
+#. module: pinup_price_purchase
+#: help:pinup.price.purchase,website_message_ids:0
+msgid "Website communication history"
+msgstr "Website communication history"
+
+#. module: pinup_price_purchase
+#: view:pinup.price.purchase:pinup_price_purchase.pinup_price_purchase_form_view
+msgid "pinup_price_purchase Form"
+msgstr "pinup_price_purchase Form"
+
+#. module: pinup_price_purchase
+#: view:pinup.price.purchase:pinup_price_purchase.pinup_price_purchase_tree_view
+msgid "pinup_price_purchase Tree"
+msgstr "pinup_price_purchase Tree"
+
+#. module: pinup_price_purchase
+#: model:ir.ui.menu,name:pinup_price_purchase.menu_product_in_config_pinup_price_purchase
+msgid "set price"
+msgstr "Preciar"

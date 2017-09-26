@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record id="seq_type_pinup_price" model="ir.sequence">
+          <field name="name">set price</field>
+          <field name="code">reg_code_price</field>
+        </record>
+        <record id="seq_pinup_price" model="ir.sequence">
+            <field name="name">reg set price</field>
+            <field name="code">reg_code_price</field>
+            <field name="prefix">SP</field>
+            <field name="padding">5</field>
+            <field name="implementation">no_gap</field>
+        </record>
+
+        <record model="ir.ui.view" id="pinup_price_purchase_form_view">
+            <field name="name">pinup_price_purchase.form</field>
+            <field name="model">pinup.price.purchase</field>
+            <field name="arch" type="xml">
+                <form string="pinup_price_purchase Form">
+                    <header>
+                        <button name="action_draft" type="object" string="Draft"
+                             states="price" />
+                        <button name="action_confirmed" type="object" string="Priced"
+                             states="draft" class="oe_highlight"/>
+                         <button name="action_invoiced" type="object" string="Invoiced"
+                              states="price" class="oe_highlight"/>
+                          <button name="action_create" type="object" string="Create Inovice"
+                               states="invoiced" class="oe_highlight"/>
+                        <field name="state" widget="statusbar" readonly="1"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <label string="Set Price "/>
+                                <!-- <field name="name" class="oe_inline" readonly="1"/> -->
+                            </h1>
+                        </div>
+                        
+                            <group col="3">
+                                  <group >
+                                 <field name="purchase_order_id" attrs="{'readonly':[('state', 'not in', ['draft'])]}"/>
+                                </group>
+                                <group >
+                                  <field name="partner_id"/>
+                                </group>
+                                <group >
+                                  <field name="request_date" attrs="{'readonly':[('state', 'not in', ['draft'])]}"/>
+                                </group>
+                            </group>
+                            <!-- <group col="3">
+                                <field name="price_usd"/>
+                                <field name="price_date" nolabel="1"/>
+                                <field name="tc"/>
+                                <field name="tc_date" nolabel="1"/>
+                                <field name="tc_date"/>
+                            </group> -->
+                    
+                        <group col="3">
+                          <group>
+                              <field name="tons_contract"  readonly="1" />
+                          </group>
+                            <group>
+                                <field name="tons_reception"/>
+                            </group>
+                            <group>
+                                <field name="tons_priced"/>
+                            </group>
+                        </group>
+
+                        <group col="4">
+                          <group col="1" >
+                              <field name="pinup_tons" nolabel="1" attrs="{'readonly':[('state', 'not in', ['draft'])]}"/>
+                              <label for="pinup_tons" string="Tons"/>
+                          </group>
+                          <group col="1">
+                              <field name="price_min" nolabel="1" attrs="{'readonly':[('state', 'not in', ['draft'])]}"/>
+                              <label for="price_min" string="Price min"/>
+                          </group>
+                          <group col="1">
+                              <field name="bases_ton" nolabel="1" attrs="{'readonly':[('state', 'not in', ['draft'])]}"/>
+                              <label for="bases_ton" string="Bases Ton"/>
+                          </group>
+                          <group col="1">
+                              <field name="service" nolabel="1"  attrs="{'readonly':[('state', 'not in', ['draft'])]}"/>
+                              <label for="service" string="Service"/>
+                          </group>
+                        </group>
+
+                        <group col="3">
+                            <group col="1">
+                              <field name="price_bushel" attrs="{'readonly':[('state', 'not in', ['price'])]}"/>
+                            </group>
+                            <group col="1">
+                              <field name="price_per_ton" readonly="1"/>
+                            </group>
+                            <group col="1">
+                              <field name="tc" attrs="{'readonly':[('state', 'not in', ['price'])]}"/>
+                            </group>
+                        </group>
+
+                        <group col="3">
+                            <group>
+                              <field name="price_mxn" readonly="1"/>
+                              <field name="invoice_create_id" states="close" readonly="1"/>
+                            </group>
+                        </group>
+
+                        <!-- <group col="3">
+                            <group>
+                                <field name="price_usd_mn"/>
+                            </group>
+                            <group>
+                                <field name="tc_mn"/>
+                            </group>
+                            <group>
+                                <field name="price_mx"  readonly="1" />
+                            </group>
+                        </group>
+                        <group col="2">
+                          <group>
+                              <field name="request_date"  attrs="{'readonly':[('state', 'in', ['confirmed'])]}" />
+                          </group>
+                            <group>
+                                <field name="pinup_tons" attrs="{'readonly':[('state', 'in', ['confirmed'])]}"/>
+                            </group>
+                        </group> -->
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+
+        <record model="ir.ui.view" id="pinup_price_purchase_tree_view">
+            <field name="name">pinup price purchase tree</field>
+            <field name="model">pinup.price.purchase</field>
+            <field name="arch" type="xml">
+                <tree string="pinup_price_purchase Tree" default_order="name desc">
+                    <field name="name"/>
+                    <field name="purchase_order_id"/>
+                    <field name="request_date"/>
+                    <field name="pinup_tons"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="pinup_price_purchase_list_action">
+            <field name="name">Set Price Contract</field>
+            <field name="res_model">pinup.price.purchase</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    set price purchase
+                </p>
+            </field>
+        </record>
+
+
+        <record model="ir.ui.view" id="pinup_price_purchase_search_view">
+            <field name="name">pinup_price_purchase</field>
+            <field name="model">pinup.price.purchase</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="purchase_order_id"/>
+                    <field name="partner_id"/>
+                    <separator/>
+                    <group string="Group By">
+                        <filter name="contracts" string="Contract"
+                            context="{'group_by': 'purchase_order_id'}"/>
+                        <filter name="partner" string="Partner"
+                            context="{'group_by': 'partner_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <menuitem id="menu_purchase_preciar" name="Preciar" parent="purchase.menu_purchase_root" sequence="4"/>
+        <menuitem
+              action="pinup_price_purchase_list_action" id="menu_product_in_config_pinup_price_purchase" name="set price" parent="menu_purchase_preciar" sequence="12"/>
+        
+    </data>
+</openerp>

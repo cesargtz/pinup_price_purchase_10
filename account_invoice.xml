@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+         <record model="ir.ui.view" id="account_form_view">
+            <field name="name">account_invoice.form</field>
+            <field name="model">pinup.price.purchase</field>
+             <field name="inherit_id" ref="pinup_price_purchase_form_view"/>
+            <field name="arch" type="xml">
+                <form string="pinup_price_purchase Form">
+                    <header>
+                        <button name="action_draft" type="object" string="Draft"
+                             states="confirmed" />
+                        <button name="action_confirmed" type="object" string="Confirmed"
+                             states="draft" class="oe_highlight"/>
+                        <field name="state" widget="statusbar" readonly="1"/>
+                    </header>
+                </form>
+            </field>
+        </record>
+
+  </data>
+</openerp>

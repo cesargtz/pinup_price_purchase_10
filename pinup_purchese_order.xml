@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="purchase_order_pinup_contract">
+            <field name="name">purchase.order.pinup.contract</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <button name="action_view_picking" position="before">
+                    <button type="object" class="oe_highlight"
+                        name="pinup_price" string="Set Price" attrs="{'invisible': ['|', '|' , ('is_shipped', '=', True), ('state','not in', ('purchase','done')), ('picking_count', '=', 0)]}"/>
+                </button>
+            </field>
+        </record>
+    </data>
+</openerp>
