@@ -128,7 +128,6 @@ class pinup_price_purchase(models.Model):
             'date_invoice':self.request_date,
             'state':'draft',
             'purchase_id': self.purchase_order_id.id,
-            'invoice_line_tax_ids':self.purchase_order_id.taxes_id.id,
             })
         self.create_move_id(invoice_id)
         self.invoice_create_id = invoice_id
