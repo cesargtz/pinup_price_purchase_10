@@ -120,18 +120,15 @@ class pinup_price_purchase(models.Model):
     def action_create(self):
         invoice_id = self.env['account.invoice'].create({
             'partner_id' : self.partner_id.id,
-            'account_id' : 894,
-            'journal_id' : self.env['account.journal'].search([('type','=','purchase')])[0].id,
+            'account_id' : self.partner_id.property_account_payable_id.id,
+            'journal_id' : self.env['account.journal'].search([('type','=','purchase')]).id,
             'currency_id' : 34,
             'type':'in_invoice',
             'origin' : self.purchase_order_id.name,
             'date_invoice':self.request_date,
-            'invoice_line.product_id' : 284,
-            'invoice_line.quantity' : self.pinup_tons,
-            'invoice_line.uom_id' : 7,
-            'invoice_line.price_unit' : self.price_mxn,
-            'invoice_line_tax_id':9,
             'state':'draft',
+            'purchase_id': self.purchase_order_id.id,
+            'invoice_line_tax_ids':self.purchase_order_id.taxes_id.id,
             })
         self.create_move_id(invoice_id)
         self.invoice_create_id = invoice_id
@@ -140,12 +137,15 @@ class pinup_price_purchase(models.Model):
 
     @api.multi
     def create_move_id(self, invoice_id):
+        product = self.purchase_order_id.order_line.product_id
         move_id = self.env['account.invoice.line'].create({
             'invoice_id': invoice_id.id,
             'price_unit': self.price_mxn,
-            'product_id': 284,
+            'product_id': product[0].id,
             'quantity' : self.pinup_tons,
-            'uom' : 7,
-            'account_id':self.env['ir.model.data'].get_object_reference('l10n_mx', '1_cuenta201_01')[1],
-            'name':'factura desde preciar',
+            'uom_id' : 7,
+            'account_id': self.env['account.account'].search([('code','=','111211')]).id,
+            'name':'PO00002: MAIZ',
+            'company_id':1,
+            'purchase_line_id': self.env['purchase.order.line'].search([('order_id','=',self.purchase_order_id[0].id)]).id,
         })
