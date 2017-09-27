@@ -101,7 +101,10 @@ class pinup_price_purchase(models.Model):
     @api.one
     @api.depends('price_per_ton')
     def _compute_mx(self):
-        self.price_mxn = self.price_per_ton * self.tc
+        if self.price_per_ton >= self.price_min:
+            self.price_mxn = self.price_per_ton * self.tc
+        else:
+            self.price_mxn = self.price_min * self.tc
 
     @api.multi
     def write(self, vals, recursive=None):
