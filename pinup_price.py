@@ -154,7 +154,4 @@ class pinup_price_purchase(models.Model):
             'purchase_line_id': self.env['purchase.order.line'].search([('order_id','=',self.purchase_order_id[0].id)]).id,
         })
 
-        self.env['account.invoice.line.tax'].create({
-            'invoice_line_id': move_id.id,
-            'tax_id': iva,
-        })
+        # self.env.cr.execute('INSERT INTO account_invoice_line_tax VALUES (%s, %s)',(move_id.id, iva))
