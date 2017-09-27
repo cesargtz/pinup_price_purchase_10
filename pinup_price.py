@@ -2,6 +2,9 @@
 
 from odoo import models, fields, api, exceptions
 import psycopg2
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class pinup_price_purchase(models.Model):
     _inherit = ['mail.thread']
@@ -137,6 +140,8 @@ class pinup_price_purchase(models.Model):
     @api.multi
     def create_move_id(self, invoice_id):
         product = self.purchase_order_id.order_line.product_id
+        iva = product.product_tmpl_id.supplier_taxes_id.id
+        _logger.critical(product.product_tmpl_id.supplier_taxes_id.id )
         move_id = self.env['account.invoice.line'].create({
             'invoice_id': invoice_id.id,
             'price_unit': self.price_mxn,
@@ -147,4 +152,9 @@ class pinup_price_purchase(models.Model):
             'name':'PO00002: MAIZ',
             'company_id':1,
             'purchase_line_id': self.env['purchase.order.line'].search([('order_id','=',self.purchase_order_id[0].id)]).id,
+        })
+
+        self.env['account.invoice.line.tax'].create({
+            'invoice_line_id': move_id.id,
+            'tax_id': iva,
         })
