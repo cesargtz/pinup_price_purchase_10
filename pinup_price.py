@@ -133,7 +133,6 @@ class pinup_price_purchase(models.Model):
             'origin' : self.purchase_order_id.name,
             'date_invoice':self.request_date,
             'state':'draft',
-            'purchase_id': self.purchase_order_id.id,
             })
         self.create_move_id(invoice_id)
         self.invoice_create_id = invoice_id
@@ -143,8 +142,7 @@ class pinup_price_purchase(models.Model):
     @api.multi
     def create_move_id(self, invoice_id):
         product = self.purchase_order_id.order_line.product_id
-        iva = product.product_tmpl_id.supplier_taxes_id.id
-        _logger.critical(product.product_tmpl_id.supplier_taxes_id.id )
+        # iva = product.product_tmpl_id.supplier_taxes_id.id
         move_id = self.env['account.invoice.line'].create({
             'invoice_id': invoice_id.id,
             'price_unit': self.price_mxn,
@@ -152,7 +150,7 @@ class pinup_price_purchase(models.Model):
             'quantity' : self.pinup_tons,
             'uom_id' : 7,
             'account_id': self.env['account.account'].search([('code','=','111211')]).id,
-            'name':'PO00002: MAIZ',
+            'name': product[0].product_tmpl_id.description_purchase,
             'company_id':1,
             'purchase_line_id': self.env['purchase.order.line'].search([('order_id','=',self.purchase_order_id[0].id)]).id,
         })
