@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, exceptions
+from openerp.exceptions import ValidationError
 import psycopg2
 import logging
 
@@ -67,8 +68,23 @@ class pinup_price_purchase(models.Model):
     def _check_tons(self):
         tons_available = self.tons_reception + self.pinup_tons - self.tons_priced
         if self.pinup_tons > tons_available:
-            raise exceptions.ValidationError(
-                "No tienes las suficientes toneladas para preciar.")
+            raise exceptions.ValidationError("No tienes las suficientes toneladas para preciar.")
+
+    @api.constrains('bases_ton')
+    def _check_something(self):
+        for record in self:
+            if record.state == 'price':
+                if record.bases_ton < 1:
+                    raise ValidationError("Bases por tonelada en ceros")
+
+
+    @api.constrains('tc')
+    def _check_tc(self):
+        for record in self:
+            if record.price_bushel > 1:
+                if record.tc < 1:
+                    raise ValidationError("Tipo de cambio en ceros")
+
 
     @api.multi
     @api.depends('purchase_order_id')
@@ -86,7 +102,8 @@ class pinup_price_purchase(models.Model):
     @api.depends('purchase_order_id')
     def _compute_tr(self):
         for line in self.env['truck.reception'].search([('contract_id', '=', self.purchase_order_id.name), ('state', '=', 'done')], order='date'):
-            self.tons_reception += line['clean_kilos'] / 1000
+            if line['stock_picking_id']:
+                self.tons_reception += line['clean_kilos'] / 1000
 
     @api.one
     @api.depends('purchase_order_id')
@@ -99,12 +116,13 @@ class pinup_price_purchase(models.Model):
             self.price_per_ton = self.price_bushel * 0.3936825 + self.bases_ton
 
     @api.one
-    @api.depends('price_per_ton')
+    @api.depends('price_per_ton','tc')
     def _compute_mx(self):
         if self.price_per_ton >= self.price_min:
             self.price_mxn = self.price_per_ton * self.tc
         else:
             self.price_mxn = self.price_min * self.tc
+
 
     @api.multi
     def write(self, vals, recursive=None):
