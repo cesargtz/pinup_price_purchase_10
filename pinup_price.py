@@ -17,7 +17,7 @@ class pinup_price_purchase(models.Model):
         'res.partner', readonly=True, related="purchase_order_id.partner_id", store=True)
     tons_contract = fields.Float(compute="_compute_tons")
     request_date = fields.Date(required=True, default=fields.Date.today)
-    pinup_tons = fields.Float(required=True, eval="False", digits=(12, 2))
+    pinup_tons = fields.Float(required=True, eval="False", digits=(12, 3))
     price_bushel = fields.Float(digits=(12, 2))
     bases_ton = fields.Float(compute="_compute_base", inverse="_inverse_base", digits=(12, 3), store=True)
     price_min = fields.Float(compute="_compute_min", inverse="_inverse_min", digits=(12, 2), store=True)
@@ -118,7 +118,7 @@ class pinup_price_purchase(models.Model):
     @api.constrains('pinup_tons')
     def _check_tons(self):
         tons_available = self.tons_reception + self.pinup_tons - self.tons_priced
-        if self.pinup_tons > tons_available:
+        if self.pinup_tons >= (tons_available + .1):
             raise exceptions.ValidationError("No tienes las suficientes toneladas para preciar.")
 
 
