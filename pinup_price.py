@@ -17,14 +17,15 @@ class pinup_price_purchase(models.Model):
         'res.partner', readonly=True, related="purchase_order_id.partner_id", store=True)
     tons_contract = fields.Float(compute="_compute_tons")
     request_date = fields.Date(required=True, default=fields.Date.today)
-    pinup_tons = fields.Float(required=True, eval="False")
-    price_bushel = fields.Float()
-    bases_ton = fields.Float()
-    price_min = fields.Float()
-    service = fields.Float()
-    tc = fields.Float()
-    price_per_ton = fields.Float(compute="_compute_ton_usd", store=True)
-    price_mxn = fields.Float(compute="_compute_mx", store=True)
+    pinup_tons = fields.Float(required=True, eval="False", digits=(12, 2))
+    price_bushel = fields.Float(digits=(12, 2))
+    bases_ton = fields.Float(compute="_compute_base", inverse="_inverse_base", digits=(12, 3), store=True)
+    price_min = fields.Float(compute="_compute_min", inverse="_inverse_min", digits=(12, 2), store=True)
+    service = fields.Float(digits=(12, 2))
+    cost = fields.Float(compute="_compute_cost", inverse="_inverse_cost", digits=(12, 2), store=True)
+    tc = fields.Float(digits=(12, 4))
+    price_per_ton = fields.Float(compute="_compute_ton_usd", store=True, digits=(12, 2))
+    price_mxn = fields.Float(compute="_compute_mx", store=True, digits=(12, 2))
     tons_reception = fields.Float(
         compute="_compute_tr", digits=(12, 3),  store=True)
     tons_invoiced = fields.Float(
@@ -33,10 +34,21 @@ class pinup_price_purchase(models.Model):
         compute="_compute_priced", digits=(12, 3),  store=True)
     invoice_create_id = fields.Many2one('account.invoice', readonly=True)
 
+    contract_type = fields.Selection([
+        ('axc', 'AxC'),
+        ('pf', 'Precio Fijo'),
+        ('pm', 'Precio Minimo'),
+        ('pd', 'Precio Despues'),
+        ('pb', 'Precio Base'),
+        ('surplus', 'Excedente'),
+        ('na', 'No aplica'),
+    ], 'Tipo de contrato', readonly=True, compute="_compute_contract_type", store=True, default='na')
+
 
     state = fields.Selection([
         ('draft', "Draft"),
         ('price', "Price"),
+        ('currency', "Currency"),
         ('invoiced', "Invoiced"),
         ('close', "Close"),
     ], default='draft')
@@ -48,6 +60,41 @@ class pinup_price_purchase(models.Model):
     def _compute_tons(self):
         self.tons_contract = self.purchase_order_id.tons_hired
 
+    @api.one
+    @api.depends("purchase_order_id")
+    def _compute_contract_type(self):
+        self.contract_type = self.purchase_order_id.contract_type
+
+    @api.one
+    @api.depends("purchase_order_id")
+    def _compute_cost(self):
+        if self.purchase_order_id.contract_type == 'pm':
+            base = self.env['market.base'].search([], order='id desc', limit=1)
+            self.cost = base.cost
+
+    def _inverse_cost(self):
+        pass
+
+    @api.one
+    @api.depends("purchase_order_id")
+    def _compute_base(self):
+        if self.purchase_order_id.contract_type == 'pm':
+            base = self.env['market.base'].search([], order='id desc', limit=1)
+            self.bases_ton = base.base
+
+    def _inverse_base(self):
+        pass
+
+    @api.one
+    @api.depends("purchase_order_id","price_min")
+    def _compute_min(self):
+        if self.purchase_order_id.contract_type == 'pm':
+            base = self.env['market.base'].search([], order='id desc', limit=1)
+            self.price_min = base.price_min
+
+    def _inverse_min(self):
+        pass
+
     @api.multi
     def action_draft(self):
         self.state = 'draft'
@@ -55,6 +102,10 @@ class pinup_price_purchase(models.Model):
     @api.multi
     def action_confirmed(self):
         self.state = 'price'
+
+    @api.multi
+    def action_currency(self):
+        self.state = 'currency'
 
     @api.multi
     def action_invoiced(self):
@@ -69,21 +120,6 @@ class pinup_price_purchase(models.Model):
         tons_available = self.tons_reception + self.pinup_tons - self.tons_priced
         if self.pinup_tons > tons_available:
             raise exceptions.ValidationError("No tienes las suficientes toneladas para preciar.")
-
-    @api.constrains('bases_ton')
-    def _check_something(self):
-        for record in self:
-            if record.state == 'price':
-                if record.bases_ton < 1:
-                    raise ValidationError("Bases por tonelada en ceros")
-
-
-    @api.constrains('tc')
-    def _check_tc(self):
-        for record in self:
-            if record.price_bushel > 1:
-                if record.tc < 1:
-                    raise ValidationError("Tipo de cambio en ceros")
 
 
     @api.multi
@@ -130,6 +166,8 @@ class pinup_price_purchase(models.Model):
             if self.state == 'draft':
                 self.write({'state': 'price'}, 'r')
             elif self.state == 'price':
+                self.write({'state': 'currency'}, 'r')
+            elif self.state == 'currency':
                 self.write({'state': 'invoiced'}, 'r')
         res = super(pinup_price_purchase, self).write(vals)
         return res
@@ -145,7 +183,7 @@ class pinup_price_purchase(models.Model):
         invoice_id = self.env['account.invoice'].create({
             'partner_id' : self.partner_id.id,
             'account_id' : self.partner_id.property_account_payable_id.id,
-            'journal_id' : self.env['account.journal'].search([('type','=','purchase')]).id,
+            'journal_id' : self.env['account.journal'].search([('type','=','purchase')], order='id', limit = 1).id,
             'currency_id' : 34,
             'type':'in_invoice',
             'origin' : self.purchase_order_id.name,
