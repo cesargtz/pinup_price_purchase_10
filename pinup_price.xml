@@ -36,7 +36,7 @@
                                 <!-- <field name="name" class="oe_inline" readonly="1"/> -->
                             </h1>
                         </div>
-                        
+
                             <group col="3">
                                   <group >
                                  <field name="purchase_order_id" attrs="{'readonly':[('state', 'not in', ['draft'])]}"/>
@@ -55,7 +55,7 @@
                                 <field name="tc_date" nolabel="1"/>
                                 <field name="tc_date"/>
                             </group> -->
-                    
+
                         <group col="3">
                           <group>
                               <field name="tons_contract"  readonly="1" />
@@ -141,9 +141,11 @@
             <field name="arch" type="xml">
                 <tree string="pinup_price_purchase Tree" default_order="name desc">
                     <field name="name"/>
+                    <field name="partner_id"/>
                     <field name="purchase_order_id"/>
-                    <field name="request_date"/>
+                    <field name="price_mxn"/>
                     <field name="pinup_tons"/>
+                    <field name="request_date"/>
                 </tree>
             </field>
         </record>
@@ -182,6 +184,6 @@
         <menuitem id="menu_purchase_preciar" name="Preciar" parent="purchase.menu_purchase_root" sequence="4"/>
         <menuitem
               action="pinup_price_purchase_list_action" id="menu_product_in_config_pinup_price_purchase" name="set price" parent="menu_purchase_preciar" sequence="12"/>
-        
+
     </data>
 </openerp>
