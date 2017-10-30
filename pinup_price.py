@@ -61,9 +61,29 @@ class pinup_price_purchase(models.Model):
         self.tons_contract = self.purchase_order_id.tons_hired
 
     @api.one
-    @api.depends("purchase_order_id")
+    @api.depends("purchase_order_id","tons_reception","tons_priced","pinup_tons")
     def _compute_contract_type(self):
-        self.contract_type = self.purchase_order_id.contract_type
+        if self.tons_priced > self.tons_contract:
+            self.contract_type = "surplus"
+            return {
+                'warning': {
+                    'title': "Toneladas fuera del rango contratado.",
+                    'message': "Esta fuera del rango de las toneladas contradadas. Se contrato %s tons, y se entregarón %s tons." % (self.tons_contract, self.tons_reception),
+                }
+            }
+        else:
+            self.contract_type = self.purchase_order_id.contract_type
+
+    @api.onchange("pinup_tons")
+    def onchange_tons(self):
+        if (self.tons_priced + self.pinup_tons) > self.tons_contract:
+            self.contract_type = "surplus"
+            return {
+                'warning': {
+                    'title': "Toneladas fuera del rango contratado.",
+                    'message': "Esta fuera del rango de las toneladas contradadas. usted contrato %s tons, y ya se entregarón %s tons." % (self.tons_contract, self.tons_reception),
+                }
+            }
 
     @api.one
     @api.depends("purchase_order_id")
@@ -137,9 +157,19 @@ class pinup_price_purchase(models.Model):
     @api.one
     @api.depends('purchase_order_id')
     def _compute_tr(self):
-        for line in self.env['truck.reception'].search([('contract_id', '=', self.purchase_order_id.name), ('state', '=', 'done')], order='date'):
-            if line['stock_picking_id']:
-                self.tons_reception += line['clean_kilos'] / 1000
+        available = 0
+        for line in self.env['stock.picking'].search([('group_id.name', '=', self.purchase_order_id.name), ('state', '=', 'done')]):
+            if "/IN/" in line['name']:
+                print("*********IN*********")
+                available = available + line['tons']
+            if "/OUT/" in line['name']:
+                print("*********OUT*********")
+                available = available - line['tons']
+            print(available)
+        self.tons_reception = available
+        # for line in self.env['truck.reception'].search([('contract_id', '=', self.purchase_order_id.name), ('state', '=', 'done')], order='date'):
+        #     if line['stock_picking_id']:
+        #         self.tons_reception += line['clean_kilos'] / 1000
 
     @api.one
     @api.depends('purchase_order_id')
