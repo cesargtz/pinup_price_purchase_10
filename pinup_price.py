@@ -81,7 +81,7 @@ class pinup_price_purchase(models.Model):
             return {
                 'warning': {
                     'title': "Toneladas fuera del rango contratado.",
-                    'message': "Esta fuera del rango de las toneladas contradadas. usted contrato %s tons, y ya se entregarón %s tons." % (self.tons_contract, self.tons_reception),
+                    'message': "Estas fuera del rango de las toneladas contradadas. usted contrato %s tons." % (self.tons_contract),
                 }
             }
 
@@ -157,19 +157,7 @@ class pinup_price_purchase(models.Model):
     @api.one
     @api.depends('purchase_order_id')
     def _compute_tr(self):
-        available = 0
-        for line in self.env['stock.picking'].search([('group_id.name', '=', self.purchase_order_id.name), ('state', '=', 'done')]):
-            if "/IN/" in line['name']:
-                print("*********IN*********")
-                available = available + line['tons']
-            if "/OUT/" in line['name']:
-                print("*********OUT*********")
-                available = available - line['tons']
-            print(available)
-        self.tons_reception = available
-        # for line in self.env['truck.reception'].search([('contract_id', '=', self.purchase_order_id.name), ('state', '=', 'done')], order='date'):
-        #     if line['stock_picking_id']:
-        #         self.tons_reception += line['clean_kilos'] / 1000
+        self.tons_reception = self.purchase_order_id.tons_reception
 
     @api.one
     @api.depends('purchase_order_id')
@@ -240,5 +228,23 @@ class pinup_price_purchase(models.Model):
             'company_id':1,
             'purchase_line_id': self.env['purchase.order.line'].search([('order_id','=',self.purchase_order_id[0].id)]).id,
         })
+
+
+    @api.onchange('pinup_tons')
+    def _onchange_tons(self):
+        advance_invoiced = 0
+        tons_contract =  self.tons_contract
+        for line in self.env['account.invoice'].search([('origin', '=', self.purchase_order_id.name), ('partner_id', '=', self.partner_id.id),('state', '=', 'open')]):
+            if line.invoice_line_ids.product_id.product_tmpl_id.consider_contract:
+                advance_invoiced += line.invoice_line_ids.quantity
+        # print(advance_invoiced)
+        if (advance_invoiced + self.pinup_tons) > self.tons_reception:
+            return {
+                'warning': {
+                    'title': "Estas tratando de facturar más de lo contratado.",
+                    'message': "Quieres facturar %s tons, pero estan facturadas %s tons. El total disponible es de %s tons" % (self.pinup_tons, advance_invoiced, self.tons_reception),
+                }
+            }
+
 
         # self.env.cr.execute('INSERT INTO account_invoice_line_tax VALUES (%s, %s)',(move_id.id, iva))
