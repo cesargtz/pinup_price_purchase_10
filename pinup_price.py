@@ -61,29 +61,28 @@ class pinup_price_purchase(models.Model):
         self.tons_contract = self.purchase_order_id.tons_hired
 
     @api.one
-    @api.depends("purchase_order_id","tons_reception","tons_priced","pinup_tons")
+    @api.depends("purchase_order_id","pinup_tons")
     def _compute_contract_type(self):
-        if self.tons_priced > self.tons_contract:
-            self.contract_type = "surplus"
-            return {
-                'warning': {
-                    'title': "Toneladas fuera del rango contratado.",
-                    'message': "Esta fuera del rango de las toneladas contradadas. Se contrato %s tons, y se entregarón %s tons." % (self.tons_contract, self.tons_reception),
-                }
-            }
-        else:
-            self.contract_type = self.purchase_order_id.contract_type
-
-    @api.onchange("pinup_tons")
-    def onchange_tons(self):
         if (self.tons_priced + self.pinup_tons) > self.tons_contract:
             self.contract_type = "surplus"
             return {
                 'warning': {
                     'title': "Toneladas fuera del rango contratado.",
-                    'message': "Estas fuera del rango de las toneladas contradadas. usted contrato %s tons." % (self.tons_contract),
+                    'message': "Estas fuera del rango de las toneladas contradadas. usted contrato %s tons. El Tipo de contrato sera precio mínimo" % (self.tons_contract),
                 }
             }
+        else:
+            self.contract_type = self.purchase_order_id.contract_type
+
+    # @api.onchange("pinup_tons")
+    # def onchange_tons(self):
+    #     if (self.tons_priced + self.pinup_tons) > self.tons_reception:
+    #         return {
+    #             'warning': {
+    #                 'title': "Toneladas no disponibles.",
+    #                 'message': "Estas fuera del rango disponible. %s toneladas entregadas." % (self.tons_reception),
+    #             }
+    #         }
 
     @api.one
     @api.depends("purchase_order_id")
@@ -135,10 +134,10 @@ class pinup_price_purchase(models.Model):
     def action_create(self):
         self.state = 'close'
 
-    @api.constrains('pinup_tons')
+    @api.one
+    @api.constrains('pinup_tons','tons_priced','tons_reception')
     def _check_tons(self):
-        tons_available = self.tons_reception + self.pinup_tons - self.tons_priced
-        if self.pinup_tons >= (tons_available + .1):
+        if self.tons_priced > self.tons_reception:
             raise exceptions.ValidationError("No tienes las suficientes toneladas para preciar.")
 
 
@@ -233,15 +232,15 @@ class pinup_price_purchase(models.Model):
     @api.onchange('pinup_tons')
     def _onchange_tons(self):
         advance_invoiced = 0
-        tons_contract =  self.tons_contract
-        for line in self.env['account.invoice'].search([('origin', '=', self.purchase_order_id.name), ('partner_id', '=', self.partner_id.id),('state', '=', 'open')]):
+        tons_contract =  self.tons_reception
+        for line in self.env['account.invoice'].search([('origin', '=', self.purchase_order_id.name), ('partner_id', '=', self.partner_id.id),('state', 'in', ['open','paid'])]):
             if line.invoice_line_ids.product_id.product_tmpl_id.consider_contract:
                 advance_invoiced += line.invoice_line_ids.quantity
         # print(advance_invoiced)
         if (advance_invoiced + self.pinup_tons) > self.tons_reception:
             return {
                 'warning': {
-                    'title': "Estas tratando de facturar más de lo contratado.",
+                    'title': "Estas tratando de facturar más de lo Entregado.",
                     'message': "Quieres facturar %s tons, pero estan facturadas %s tons. El total disponible es de %s tons" % (self.pinup_tons, advance_invoiced, self.tons_reception),
                 }
             }
