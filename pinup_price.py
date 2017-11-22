@@ -63,7 +63,7 @@ class pinup_price_purchase(models.Model):
     @api.one
     @api.depends("purchase_order_id","pinup_tons")
     def _compute_contract_type(self):
-        if (self.tons_priced + self.pinup_tons) > self.tons_contract:
+        if self.tons_priced > (self.tons_contract + .1):
             self.contract_type = "surplus"
             return {
                 'warning': {
