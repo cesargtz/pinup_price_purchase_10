@@ -113,8 +113,8 @@
                     <field name="name"/>
                     <field name="partner_id"/>
                     <field name="purchase_order_id"/>
-                    <field name="price_mxn"/>
-                    <field name="pinup_tons"/>
+                    <field name="price_mxn" sum="price"/>
+                    <field name="pinup_tons" sum="tons"/>
                     <field name="request_date"/>
                 </tree>
             </field>

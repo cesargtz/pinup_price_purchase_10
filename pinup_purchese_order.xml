@@ -10,6 +10,11 @@
                     <button type="object" class="oe_highlight"
                         name="pinup_price" string="Set Price" attrs="{'invisible': ['|', '|' , ('is_shipped', '=', True), ('state','not in', ('purchase','done')), ('picking_count', '=', 0)]}"/>
                 </button>
+                <button name="action_view_invoice" position="after">
+                    <button type="object" class="oe_stat_button" nolabel="1" name="pinup_price_tree"  icon="fa-money">
+                        <field name="pinup_purchase_count" string="Preciar" widget="statinfo"/>
+                    </button>
+                </button>
             </field>
         </record>
     </data>
