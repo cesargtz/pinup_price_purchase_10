@@ -51,8 +51,13 @@ class pinup_price_purchase(models.Model):
         ('currency', "Currency"),
         ('invoiced', "Invoiced"),
         ('close', "Close"),
-    ], default='draft')
+        ('cancel', "Cancelado"),
+    ], default='draft', track_visibility='onchange')
 
+    @api.multi
+    def button_cancel(self):
+        self.write({'state': 'cancel'})
+        return {}
 
 
     @api.one

@@ -11,8 +11,13 @@
                         name="pinup_price" string="Set Price" attrs="{'invisible': ['|', '|' , ('is_shipped', '=', True), ('state','not in', ('purchase','done')), ('picking_count', '=', 0)]}"/>
                 </button>
                 <button name="action_view_invoice" position="after">
-                    <button type="object" class="oe_stat_button" nolabel="1" name="pinup_price_tree"  icon="fa-money">
+                    <button type="object" class="oe_stat_button" nolabel="1" name="pinup_price_tree"  icon="fa-money" attrs="{'invisible':[('pinup_purchase_count', '=', 0)]}">
                         <field name="pinup_purchase_count" string="Preciar" widget="statinfo"/>
+                    </button>
+                </button>
+                <button name="action_view_invoice" position="after">
+                    <button type="object" class="oe_stat_button" nolabel="1" name="split_receptions_tree"  icon="fa-balance-scale" attrs="{'invisible':[('split_reception_count', '=', 0)]}">
+                        <field name="split_reception_count" string="Transferencias" widget="statinfo"/>
                     </button>
                 </button>
             </field>
