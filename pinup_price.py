@@ -204,10 +204,11 @@ class pinup_price_purchase(models.Model):
 
     @api.multi
     def action_create(self):
+        # 'journal_id' : self.env['account.journal'].search([('type','=','purchase')], order='id', limit = 1).id,
         invoice_id = self.env['account.invoice'].create({
             'partner_id' : self.partner_id.id,
             'account_id' : self.partner_id.property_account_payable_id.id,
-            'journal_id' : self.env['account.journal'].search([('type','=','purchase')], order='id', limit = 1).id,
+            'journal_id' : 55,
             'currency_id' : 34,
             'type':'in_invoice',
             'origin' : self.purchase_order_id.name,
