@@ -15,7 +15,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','purchase','truck_reception', 'sale','market_price'],
+    'depends': ['base','purchase','truck_reception', 'sale','market_price','product_template_contract'],
 
     # always loaded
     'data': [

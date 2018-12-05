@@ -13,8 +13,9 @@ class pinup_price_purchase(models.Model):
 
     name = fields.Char('Set Price Reference', required=True, select=True, copy=False, default=lambda self: self.env['ir.sequence'].next_by_code('reg_code_price'), help="Unique number of the set prices")
     purchase_order_id = fields.Many2one('purchase.order')
-    partner_id = fields.Many2one(
-        'res.partner', readonly=True, related="purchase_order_id.partner_id", store=True)
+    company_id = fields.Many2one('res.company', string="Compañia", readonly=True)
+    partner_id = fields.Many2one('res.partner', readonly=True, related="purchase_order_id.partner_id", store=True)
+    product_invoice = fields.Many2one('product.product', string='Producto')
     tons_contract = fields.Float(compute="_compute_tons")
     request_date = fields.Date(required=True, default=fields.Date.today)
     pinup_tons = fields.Float(required=True, eval="False", digits=(12, 3))
@@ -43,9 +44,8 @@ class pinup_price_purchase(models.Model):
         ('pb', 'Precio Base'),
         ('surplus', 'Excedente'),
         ('na', 'No aplica'),
-    ], 'Tipo de contrato', readonly=True, compute="_compute_contract_type", store=True, default='na')
-
-
+    ], 'Tipo de contrato', required=True,  store=True, default='axc')
+    # se elimino compute="_compute_contract_type", debido a la forma de trabajo. Default AxC
     state = fields.Selection([
         ('draft', "Draft"),
         ('price', "Price"),
@@ -60,7 +60,6 @@ class pinup_price_purchase(models.Model):
         self.write({'state': 'cancel'})
         self.active = False
         return {}
-
 
     @api.one
     @api.depends("purchase_order_id")
@@ -80,16 +79,6 @@ class pinup_price_purchase(models.Model):
             }
         else:
             self.contract_type = self.purchase_order_id.contract_type
-
-    # @api.onchange("pinup_tons")
-    # def onchange_tons(self):
-    #     if (self.tons_priced + self.pinup_tons) > self.tons_reception:
-    #         return {
-    #             'warning': {
-    #                 'title': "Toneladas no disponibles.",
-    #                 'message': "Estas fuera del rango disponible. %s toneladas entregadas." % (self.tons_reception),
-    #             }
-    #         }
 
     @api.one
     @api.depends("purchase_order_id")
@@ -137,12 +126,8 @@ class pinup_price_purchase(models.Model):
     def action_invoiced(self):
         self.state = 'invoiced'
 
-    @api.multi
-    def action_create(self):
-        self.state = 'close'
-
     @api.one
-    @api.constrains('pinup_tons','tons_priced','tons_reception')
+    @api.constrains('tons_priced','tons_reception')
     def _check_tons(self):
         if self.tons_priced > self.tons_reception:
             raise exceptions.ValidationError("No tienes las suficientes toneladas para preciar.")
@@ -204,35 +189,43 @@ class pinup_price_purchase(models.Model):
 
     @api.multi
     def action_create(self):
-        # 'journal_id' : self.env['account.journal'].search([('type','=','purchase')], order='id', limit = 1).id,
         invoice_id = self.env['account.invoice'].create({
             'partner_id' : self.partner_id.id,
             'account_id' : self.partner_id.property_account_payable_id.id,
-            'journal_id' : 55,
-            'currency_id' : 34,
+            'journal_id' : self.product_invoice.journal_id.id,
+            'currency_id' : self.purchase_order_id.currency_id.id,
             'type':'in_invoice',
             'origin' : self.purchase_order_id.name,
-            'date_invoice':self.request_date,
+            'date_invoice': self.request_date,
+            'contract_type': self.contract_type,
             'state':'draft',
             })
         self.create_move_id(invoice_id)
         self.invoice_create_id = invoice_id
         self.state = 'close'
+        self.company_id = self.purchase_order_id.company_id
+
 
 
     @api.multi
     def create_move_id(self, invoice_id):
-        product = self.purchase_order_id.order_line.product_id
-        # iva = product.product_tmpl_id.supplier_taxes_id.id
+        
+        if self.product_invoice.categ_id.property_stock_account_input_categ_id:
+            account_id = self.product_invoice.categ_id.property_stock_account_input_categ_id
+            print(account_id.code)
+        else:
+            if self.product_invoice.property_account_expense_id:
+                account_id = self.product_invoice.property_account_expense_id
+                print(account_id.name)
         move_id = self.env['account.invoice.line'].create({
             'invoice_id': invoice_id.id,
             'price_unit': self.price_mxn,
-            'product_id': product[0].id,
+            'product_id': self.product_invoice.id,
             'quantity' : self.pinup_tons,
-            'uom_id' : 7,
-            'account_id': self.env['account.account'].search([('code','=','111211')]).id,
-            'name': product[0].product_tmpl_id.description_purchase,
-            'company_id':1,
+            'uom_id' : self.product_invoice.uom_id.id,
+            'account_id': account_id.id,
+            'name':  self.product_invoice.description_purchase,
+            'company_id':self.purchase_order_id.company_id.id,
             'purchase_line_id': self.env['purchase.order.line'].search([('order_id','=',self.purchase_order_id[0].id)]).id,
         })
 
@@ -240,7 +233,6 @@ class pinup_price_purchase(models.Model):
     @api.onchange('pinup_tons')
     def _onchange_tons(self):
         advance_invoiced = 0
-        tons_contract =  self.tons_reception
         for line in self.env['account.invoice'].search([('origin', '=', self.purchase_order_id.name), ('partner_id', '=', self.partner_id.id),('state', 'in', ['open','paid'])]):
             if line.invoice_line_ids.product_id.product_tmpl_id.consider_contract:
                 advance_invoiced += line.invoice_line_ids.quantity
@@ -252,6 +244,3 @@ class pinup_price_purchase(models.Model):
                     'message': "Quieres facturar %s tons, pero estan facturadas %s tons. El total disponible es de %s tons" % (self.pinup_tons, advance_invoiced, self.tons_reception),
                 }
             }
-
-
-        # self.env.cr.execute('INSERT INTO account_invoice_line_tax VALUES (%s, %s)',(move_id.id, iva))
